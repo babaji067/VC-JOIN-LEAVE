@@ -1,25 +1,20 @@
 from pymongo import MongoClient, ASCENDING
 from config import MONGO_URL
 
+mongo = MongoClient(MONGO_URL)
 
-client = MongoClient(MONGO_URL)
-
-db = client["telegram_vc_tracker"]
+db = mongo["vc_tracker"]
 
 sessions = db["sessions"]
-active = db["active"]
+active_sessions = db["active_sessions"]
 
+sessions.create_index([
+    ("user_id", ASCENDING),
+    ("chat_id", ASCENDING),
+    ("join_time", ASCENDING)
+])
 
-# Indexes
-sessions.create_index(
-    [
-        ("user_id", ASCENDING),
-        ("chat_id", ASCENDING),
-        ("join_time", ASCENDING)
-    ]
-)
-
-active.create_index(
+active_sessions.create_index(
     [
         ("user_id", ASCENDING),
         ("chat_id", ASCENDING)
@@ -28,35 +23,45 @@ active.create_index(
 )
 
 
-def create_session(data):
-    return active.update_one(
+def start_session(
+    user_id,
+    name,
+    username,
+    chat_id,
+    chat_title,
+    join_time
+):
+    active_sessions.update_one(
         {
-            "user_id": data["user_id"],
-            "chat_id": data["chat_id"]
+            "user_id": user_id,
+            "chat_id": chat_id
         },
         {
-            "$setOnInsert": data
+            "$set": {
+                "user_id": user_id,
+                "name": name,
+                "username": username,
+                "chat_id": chat_id,
+                "chat_title": chat_title,
+                "join_time": join_time
+            }
         },
         upsert=True
     )
 
 
 def get_active(user_id, chat_id):
-    return active.find_one(
-        {
-            "user_id": user_id,
-            "chat_id": chat_id
-        }
-    )
+    return active_sessions.find_one({
+        "user_id": user_id,
+        "chat_id": chat_id
+    })
 
 
-def finish_session(
+def end_session(
     user_id,
     chat_id,
-    leave_time,
-    duration_seconds
+    leave_time
 ):
-
     session = get_active(
         user_id,
         chat_id
@@ -65,54 +70,38 @@ def finish_session(
     if not session:
         return None
 
+    join_time = session["join_time"]
+
+    duration = int(
+        (leave_time - join_time).total_seconds()
+    )
+
     session["leave_time"] = leave_time
-    session["duration_seconds"] = duration_seconds
+    session["duration_seconds"] = duration
 
     sessions.insert_one(session)
 
-    active.delete_one(
-        {
-            "_id": session["_id"]
-        }
-    )
+    active_sessions.delete_one({
+        "_id": session["_id"]
+    })
 
     return session
 
 
-def get_history(
+def get_sessions(
     user_id,
     chat_id,
     start_time
 ):
-
     return list(
-        sessions.find(
-            {
-                "user_id": user_id,
-                "chat_id": chat_id,
-                "join_time": {
-                    "$gte": start_time
-                }
-            }
-        ).sort(
-            "join_time",
-            -1
-        )
-    )
-
-
-def get_count(
-    user_id,
-    chat_id,
-    start_time
-):
-
-    return sessions.count_documents(
-        {
+        sessions.find({
             "user_id": user_id,
             "chat_id": chat_id,
             "join_time": {
                 "$gte": start_time
             }
-        }
+        }).sort(
+            "join_time",
+            -1
+        )
     )
