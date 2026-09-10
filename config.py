@@ -3,13 +3,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_ID = int(os.getenv("API_ID"))
-API_HASH = os.getenv("API_HASH")
+API_ID = int(os.environ["API_ID"])
+API_HASH = os.environ["API_HASH"]
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = os.environ["BOT_TOKEN"]
+SESSION_STRING = os.environ["SESSION_STRING"]
 
-MONGO_URL = os.getenv("MONGO_URL")
+MONGO_URL = os.environ["MONGO_URL"]
 
-LOG_CHANNEL = int(os.getenv("LOG_CHANNEL"))
-
-SESSION_STRING = os.getenv("SESSION_STRING")
+LOG_CHANNEL = int(os.environ["LOG_CHANNEL"])
