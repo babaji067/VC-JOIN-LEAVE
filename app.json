@@ -1,31 +1,29 @@
 {
-  "name": "Telegram VC Tracker",
-  "description": "Telegram Voice Chat user join, leave and duration tracker with MongoDB logs.",
-  "repository": "https://github.com/YOUR_USERNAME/telegram-vc-tracker",
+  "name": "VC JOIN LEAVE TRACKER",
+  "description": "Telegram Voice Chat JOIN / LEAVE Tracker",
+  "repository": "https://github.com/babaji067/VC-JOIN-LEAVE",
   "keywords": [
     "telegram",
-    "vc",
     "voice-chat",
     "tracker",
     "pyrogram",
     "mongodb"
   ],
-  "stack": "heroku-24",
   "env": {
     "API_ID": {
-      "description": "Telegram API ID from my.telegram.org",
+      "description": "Telegram API ID",
       "required": true
     },
     "API_HASH": {
-      "description": "Telegram API Hash from my.telegram.org",
+      "description": "Telegram API HASH",
       "required": true
     },
     "BOT_TOKEN": {
-      "description": "Telegram Bot Token from @BotFather",
+      "description": "Telegram Bot Token",
       "required": true
     },
     "SESSION_STRING": {
-      "description": "Pyrogram user account session string",
+      "description": "Pyrogram User Session String",
       "required": true
     },
     "MONGO_URL": {
@@ -33,7 +31,7 @@
       "required": true
     },
     "LOG_CHANNEL": {
-      "description": "Telegram channel ID where VC logs will be sent",
+      "description": "Telegram Log Channel ID",
       "required": true
     }
   },
